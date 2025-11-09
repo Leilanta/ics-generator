@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>ICS Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+</head>
+<body class="bg-light">
+  <div class="container-fluid py-3">
+    <div class="card shadow-sm">
+      <div class="card-body">
+
+        <!-- Header -->
+        <div class="d-flex align-items-center mb-1">
+          <span class="badge bg-primary rounded-circle me-2">&nbsp;</span>
+          <input
+            id="title"
+            type="text"
+            class="form-control border-0 fs-4 fw-semibold px-0"
+            placeholder="Event title"
+            aria-label="Event title"
+          />
+        </div>
+
+        <!-- FORM -->
+        <div id="formWrapper">
+          <form id="eventForm">
+            <div class="row g-3">
+              <!-- Event type radio cards -->
+              <div class="col-md-6">
+                <label class="form-label d-block">Event type</label>
+                <div class="list-group">
+                  <label class="list-group-item d-flex align-items-start">
+                    <input
+                      class="form-check-input me-3"
+                      type="radio"
+                      name="eventType"
+                      value="single"
+                      checked
+                    />
+                    <div>
+                      <div class="fw-semibold">Single event</div>
+                      <div class="small text-muted">
+                        An event that happens one time.
+                      </div>
+                    </div>
+                  </label>
+                  <label class="list-group-item d-flex align-items-start">
+                    <input
+                      class="form-check-input me-3"
+                      type="radio"
+                      name="eventType"
+                      value="recurring"
+                    />
+                    <div>
+                      <div class="fw-semibold">Recurring event</div>
+                      <div class="small text-muted">
+                        One event that repeats with a rule.
+                      </div>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Dates / timezone / recurrence -->
+              <div class="col-md-6">
+                <div class="row g-3">
+                  <div class="col-12">
+                    <label for="start" class="form-label">Start *</label>
+                    <input
+                      id="start"
+                      type="datetime-local"
+                      class="form-control"
+                      required
+                    />
+                  </div>
+
+                  <div class="col-12">
+                    <label for="end" class="form-label">
+                      End <span class="text-muted">(if empty, +1h)</span>
+                    </label>
+                    <input
+                      id="end"
+                      type="datetime-local"
+                      class="form-control"
+                    />
+                  </div>
+
+                  <div class="col-md-7">
+                    <label for="timezone" class="form-label">Time zone (IANA)</label>
+                    <select id="timezone" class="form-select">
+                      <option value="Europe/Madrid" selected>Europe/Madrid</option>
+                      <option value="Europe/London">Europe/London</option>
+                      <option value="UTC">UTC</option>
+                      <option value="America/New_York">America/New_York</option>
+                      <option value="America/Los_Angeles">America/Los_Angeles</option>
+                      <option value="Europe/Berlin">Europe/Berlin</option>
+                      <option value="Custom">Other (type below)</option>
+                    </select>
+                    <input
+                      id="timezoneCustom"
+                      type="text"
+                      class="form-control mt-2"
+                      placeholder="If 'Other', e.g. Europe/Paris"
+                    />
+                  </div>
+
+                  <!-- Recurrence (only for recurring) -->
+                  <div class="col-md-5 d-none" id="recurrenceOptions">
+                    <label for="recurrenceFreq" class="form-label">Repeat</label>
+                    <select id="recurrenceFreq" class="form-select mb-1">
+                      <option value="DAILY">Daily</option>
+                      <option value="WEEKLY" selected>Weekly</option>
+                      <option value="MONTHLY">Monthly</option>
+                    </select>
+                    <label for="recurrenceCount" class="form-label">
+                      Occurrences
+                    </label>
+                    <input
+                      id="recurrenceCount"
+                      type="number"
+                      min="2"
+                      max="50"
+                      value="5"
+                      class="form-control"
+                    />
+                    <div class="form-text">
+                      Adds an RRULE with this frequency and count.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- All-day, reminder, busy/free -->
+            <div class="row g-3 align-items-center mt-2">
+              <div class="col-md-3">
+                <div class="form-check">
+                  <input
+                    id="allday"
+                    type="checkbox"
+                    class="form-check-input"
+                  />
+                  <label for="allday" class="form-check-label">All day</label>
+                </div>
+              </div>
+              <div class="col-md-3">
+                <label for="reminder" class="form-label mb-0">
+                  Reminder (minutes before)
+                </label>
+                <input
+                  id="reminder"
+                  type="number"
+                  min="0"
+                  step="5"
+                  class="form-control"
+                />
+                <div class="form-text" id="reminderHelp">
+                  For all-day events this will be set to 1 day before.
+                </div>
+              </div>
+              <div class="col-md-6">
+                <label class="form-label d-block">Show me as</label>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="busyStatus"
+                    id="busy"
+                    value="BUSY"
+                    checked
+                  />
+                  <label class="form-check-label" for="busy">Busy</label>
+                </div>
+                <div class="form-check form-check-inline">
+                  <input
+                    class="form-check-input"
+                    type="radio"
+                    name="busyStatus"
+                    id="free"
+                    value="FREE"
+                  />
+                  <label class="form-check-label" for="free">Available</label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Description -->
+            <div class="mt-3">
+              <label for="description" class="form-label">Description</label>
+              <textarea
+                id="description"
+                class="form-control"
+                rows="4"
+                placeholder="Add details, agenda, video link, etc."
+              ></textarea>
+            </div>
+
+            <!-- Location -->
+            <div class="mt-3">
+              <label for="location" class="form-label">Location</label>
+              <input
+                id="location"
+                type="text"
+                class="form-control"
+                placeholder="Address or 'Online - Teams/Meet/Zoom'"
+              />
+            </div>
+
+            <!-- Organizer + attendees -->
+            <div class="row g-3 mt-1">
+              <div class="col-md-4">
+                <label for="organizerName" class="form-label">Organizer</label>
+                <input
+                  id="organizerName"
+                  type="text"
+                  class="form-control"
+                  placeholder="Organizer name"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="organizerEmail" class="form-label">Organizer email</label>
+                <input
+                  id="organizerEmail"
+                  type="email"
+                  class="form-control"
+                  placeholder="organizer@example.com"
+                />
+              </div>
+              <div class="col-md-4">
+                <label for="attendees" class="form-label">Attendees</label>
+                <input
+                  id="attendees"
+                  type="text"
+                  class="form-control"
+                  placeholder="Emails separated by comma"
+                />
+              </div>
+            </div>
+
+            <div class="mt-3">
+              <button type="submit" class="btn btn-primary">
+                Generate calendar options
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- OUTPUTS -->
+        <div id="outputs" class="mt-4 d-none">
+          <h2 class="h6 mb-3">Add this event to your calendar</h2>
+          <div class="row g-3 align-items-stretch">
+            <!-- Left: buttons + help + embed -->
+            <div class="col-lg-6">
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <a id="linkUniversal" class="btn btn-outline-secondary w-100" download>
+                    Universal / Gmail (.ics)
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <a id="linkApple" class="btn btn-outline-secondary w-100" download>
+                    Apple Calendar (.ics)
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <a id="linkOutlookWeb" class="btn btn-outline-secondary w-100" download>
+                    Outlook Web / M365 (.ics)
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <a id="linkOutlookDesktop" class="btn btn-outline-secondary w-100" download>
+                    Outlook Desktop (.ics)
+                  </a>
+                </div>
+              </div>
+
+              <div class="mb-2 fw-semibold">Or add directly:</div>
+              <div class="row g-2 mb-3">
+                <div class="col-md-6">
+                  <a
+                    id="linkGoogleDirect"
+                    class="btn btn-success w-100"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Add to Google Calendar
+                  </a>
+                </div>
+                <div class="col-md-6">
+                  <a
+                    id="linkOutlookDirect"
+                    class="btn btn-primary w-100"
+                    target="_blank"
+                    rel="noopener"
+                  >
+                    Add to Outlook.com / M365
+                  </a>
+                </div>
+              </div>
+
+              <div class="small mb-3">
+                <strong>How to make sure it’s saved:</strong>
+                <ul class="mb-1">
+                  <li><strong>.ics files:</strong> Download → open → click “Add” / “Save”.</li>
+                  <li><strong>Google Calendar:</strong> Use the button → “Save”.</li>
+                  <li><strong>Outlook.com / M365:</strong> Use the button → “Save”.</li>
+                  <li><strong>Apple (iOS/macOS):</strong> Open the .ics → “Add”.</li>
+                </ul>
+                <p class="text-muted mb-0">
+                  Busy/Available is controlled by the .ics. Direct buttons may default to busy.
+                </p>
+              </div>
+
+              <!-- Embed snippet -->
+              <div class="mt-3">
+                <label for="embedCode" class="form-label">
+                  Embed this event (buttons + map) on another page:
+                </label>
+                <div class="input-group mb-2">
+                  <textarea
+                    id="embedCode"
+                    class="form-control"
+                    rows="6"
+                    readonly
+                  ></textarea>
+                  <button
+                    id="copyEmbed"
+                    class="btn btn-outline-secondary"
+                    type="button"
+                  >
+                    Copy
+                  </button>
+                </div>
+                <div class="form-text">
+                  Paste this HTML into any page (ideally with Bootstrap 5 loaded).
+                </div>
+              </div>
+            </div>
+
+            <!-- Right: map -->
+            <div class="col-lg-6">
+              <div
+                id="mapWrapper"
+                class="border rounded d-flex flex-column h-100 d-none"
+              >
+                <div class="p-2 border-bottom">
+                  <strong>Event location map</strong>
+                  <div class="form-text">Based on the location above.</div>
+                </div>
+                <div class="flex-grow-1">
+                  <iframe
+                    id="mapFrame"
+                    title="Event location map"
+                    class="w-100 h-100 border-0"
+                    loading="lazy"
+                    referrerpolicy="no-referrer-when-downgrade"
+                  ></iframe>
+                </div>
+              </div>
+              <div id="mapPlaceholder" class="text-muted small">
+                A map preview will appear here once the event location is set.
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    const PREFILL_CONFIG = {
+      enabled: false,
+      hideForm: false,
+      values: {}
+    };
+
+    const pad = (n) => String(n).padStart(2, "0");
+
+    const toICSDateTimeLocal = (d) =>
+      d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate()) +
+      "T" + pad(d.getHours()) + pad(d.getMinutes()) + pad(d.getSeconds());
+
+    const toICSDateTimeUTC = (d) =>
+      d.getUTCFullYear() + pad(d.getUTCMonth() + 1) + pad(d.getUTCDate()) +
+      "T" + pad(d.getUTCHours()) + pad(d.getUTCMinutes()) + pad(d.getUTCSeconds()) + "Z";
+
+    const toICSDate = (d) =>
+      d.getFullYear() + pad(d.getMonth() + 1) + pad(d.getDate());
+
+    const escapeICSText = (s) =>
+      String(s || "")
+        .replace(/\\/g, "\\\\")
+        .replace(/;/g, "\\;")
+        .replace(/,/g, "\\,")
+        .replace(/\r?\n/g, "\\n");
+
+    function parseLocalDate(value) {
+      const [y, m, d] = value.split("-").map(Number);
+      return new Date(y, m - 1, d);
+    }
+
+    function parseLocalDateTime(value) {
+      const [datePart, timePart] = value.split("T");
+      const [y, m, d] = datePart.split("-").map(Number);
+      const [hh, mm] = (timePart || "00:00").split(":").map(Number);
+      return new Date(y, m - 1, d, hh || 0, mm || 0, 0);
+    }
+
+    function mapToWindowsTimeZone(iana) {
+      switch (iana) {
+        case "Europe/Madrid":
+        case "Europe/Paris":
+        case "Europe/Berlin":
+          return "Romance Standard Time";
+        case "Europe/London":
+          return "GMT Standard Time";
+        case "America/New_York":
+          return "Eastern Standard Time";
+        case "America/Los_Angeles":
+          return "Pacific Standard Time";
+        case "UTC":
+          return "UTC";
+        default:
+          return "UTC";
+      }
+    }
+
+    function createDownloadLink(anchor, icsText, filename) {
+      const blob = new Blob([icsText], { type: "text/calendar;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      anchor.href = url;
+      anchor.download = filename;
+    }
+
+    function updateMap(location) {
+      const wrapper = document.getElementById("mapWrapper");
+      const placeholder = document.getElementById("mapPlaceholder");
+      const frame = document.getElementById("mapFrame");
+      if (!location || !location.trim()) {
+        wrapper.classList.add("d-none");
+        placeholder.classList.remove("d-none");
+        frame.src = "";
+        return;
+      }
+      frame.src =
+        "https://www.google.com/maps?q=" +
+        encodeURIComponent(location.trim()) +
+        "&output=embed";
+      wrapper.classList.remove("d-none");
+      placeholder.classList.add("d-none");
+    }
+
+    function getEventType() {
+      const checked = document.querySelector('input[name="eventType"]:checked');
+      return checked ? checked.value : "single";
+    }
+
+    function getBusyStatus() {
+      const checked = document.querySelector('input[name="busyStatus"]:checked');
+      return checked ? checked.value : "BUSY";
+    }
+
+    function updateRecurrenceVisibility() {
+      const type = getEventType();
+      const box = document.getElementById("recurrenceOptions");
+      if (!box) return;
+      if (type === "recurring") {
+        box.classList.remove("d-none");
+      } else {
+        box.classList.add("d-none");
+      }
+    }
+
+    function handleAllDayToggle() {
+      const allday = document.getElementById("allday").checked;
+      const startInput = document.getElementById("start");
+      const endInput = document.getElementById("end");
+      const reminderInput = document.getElementById("reminder");
+      const help = document.getElementById("reminderHelp");
+
+      if (allday) {
+        if (startInput.type === "datetime-local") {
+          startInput.dataset.prevValue = startInput.value;
+        }
+        if (endInput.type === "datetime-local") {
+          endInput.dataset.prevValue = endInput.value;
+        }
+
+        if (startInput.value && startInput.value.includes("T")) {
+          startInput.value = startInput.value.split("T")[0];
+        }
+        if (endInput.value && endInput.value.includes("T")) {
+          endInput.value = endInput.value.split("T")[0];
+        }
+
+        startInput.type = "date";
+        endInput.type = "date";
+
+        reminderInput.value = 1440;
+        reminderInput.disabled = true;
+        if (help) {
+          help.textContent = "For all-day events the reminder is set to 1 day before.";
+        }
+      } else {
+        startInput.type = "datetime-local";
+        endInput.type = "datetime-local";
+
+        if (startInput.dataset.prevValue) {
+          startInput.value = startInput.dataset.prevValue;
+        }
+        if (endInput.dataset.prevValue) {
+          endInput.value = endInput.dataset.prevValue;
+        }
+
+        reminderInput.disabled = false;
+        if (reminderInput.value === "1440") {
+          reminderInput.value = "";
+        }
+        if (help) {
+          help.textContent = "For all-day events this will be set to 1 day before.";
+        }
+      }
+    }
+
+    function buildEmbedSnippet(params) {
+      const {
+        title,
+        location,
+        universalICS,
+        appleICS,
+        outlookWebICS,
+        outlookDesktopICS,
+        googleUrl,
+        outlookUrl
+      } = params;
+
+      const escHtml = (str) =>
+        String(str || "")
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;");
+
+      const dataUniversal = encodeURIComponent(universalICS);
+      const dataApple = encodeURIComponent(appleICS);
+      const dataOutlookWeb = encodeURIComponent(outlookWebICS);
+      const dataOutlookDesktop = encodeURIComponent(outlookDesktopICS);
+
+      const mapSrc = location
+        ? "https://www.google.com/maps?q=" +
+          encodeURIComponent(location.trim()) +
+          "&output=embed"
+        : "";
+
+      return (
+`<div class="event-calendar-widget border rounded p-3">
+  <h3 class="h6 mb-3">${escHtml(title)}</h3>
+  <div class="mb-2 d-flex flex-wrap gap-2">
+    <a class="btn btn-sm btn-outline-secondary"
+       href="data:text/calendar;charset=utf-8,${dataUniversal}"
+       download="event-universal.ics">Universal / Gmail (.ics)</a>
+    <a class="btn btn-sm btn-outline-secondary"
+       href="data:text/calendar;charset=utf-8,${dataApple}"
+       download="event-apple.ics">Apple Calendar (.ics)</a>
+    <a class="btn btn-sm btn-outline-secondary"
+       href="data:text/calendar;charset=utf-8,${dataOutlookWeb}"
+       download="event-outlook-web.ics">Outlook Web / M365 (.ics)</a>
+    <a class="btn btn-sm btn-outline-secondary"
+       href="data:text/calendar;charset=utf-8,${dataOutlookDesktop}"
+       download="event-outlook-desktop.ics">Outlook Desktop (.ics)</a>
+  </div>
+  <div class="mb-2 d-flex flex-wrap gap-2">
+    <a class="btn btn-sm btn-success"
+       href="${escHtml(googleUrl)}"
+       target="_blank" rel="noopener">Add to Google Calendar</a>
+    <a class="btn btn-sm btn-primary"
+       href="${escHtml(outlookUrl)}"
+       target="_blank" rel="noopener">Add to Outlook.com / M365</a>
+  </div>
+  ${mapSrc
+    ? `<div class="ratio ratio-16x9 mt-2">
+    <iframe src="${escHtml(mapSrc)}"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"></iframe>
+  </div>`
+    : ""}
+</div>`
+      ).trim();
+    }
+
+    function generateICSFromForm(e) {
+      if (e) e.preventDefault();
+
+      const title = (document.getElementById("title").value || "Event").trim();
+      const location = document.getElementById("location").value.trim();
+      const desc = document.getElementById("description").value.trim();
+      const tzSelect = document.getElementById("timezone").value;
+      const tzCustom = document.getElementById("timezoneCustom").value.trim();
+      const tzIana = tzSelect === "Custom" && tzCustom ? tzCustom : tzSelect;
+      const allDay = document.getElementById("allday").checked;
+      const eventType = getEventType();
+      const busyStatus = getBusyStatus();
+
+      const isBusy = busyStatus === "BUSY";
+      const transp = isBusy ? "OPAQUE" : "TRANSPARENT";
+      const msBusy = isBusy ? "BUSY" : "FREE";
+
+      const reminderInput = document.getElementById("reminder");
+      let reminderMinutes = parseInt(reminderInput.value, 10);
+      if (allDay) {
+        reminderMinutes = 1440;
+        reminderInput.value = 1440;
+      }
+
+      const organizerName = document.getElementById("organizerName").value.trim();
+      const organizerEmail = document.getElementById("organizerEmail").value.trim();
+      const attendeesRaw = document.getElementById("attendees").value.trim();
+
+      const startVal = document.getElementById("start").value;
+      const endVal = document.getElementById("end").value;
+
+      if (!startVal) {
+        alert("Please provide a start date.");
+        return;
+      }
+
+      let start, end;
+      if (allDay) {
+        start = parseLocalDate(startVal);
+        end = endVal
+          ? parseLocalDate(endVal)
+          : new Date(start.getFullYear(), start.getMonth(), start.getDate() + 1);
+      } else {
+        start = parseLocalDateTime(startVal);
+        end = endVal
+          ? parseLocalDateTime(endVal)
+          : new Date(start.getTime() + 60 * 60 * 1000);
+      }
+
+      const now = new Date();
+      const dtStamp = toICSDateTimeUTC(now);
+      const uidBase = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+      const attendees = attendeesRaw
+        ? attendeesRaw.split(",").map(a => a.trim()).filter(a => a)
+        : [];
+
+      const buildAttendees = (withRsvp) =>
+        attendees.map(email =>
+          (withRsvp ? "ATTENDEE;RSVP=TRUE:mailto:" : "ATTENDEE:mailto:") + email
+        ).join("\r\n");
+
+      const organizerLine = organizerEmail
+        ? "ORGANIZER" +
+          (organizerName ? ";CN=" + escapeICSText(organizerName) : "") +
+          ":mailto:" + organizerEmail + "\r\n"
+        : "";
+
+      let rrule = "";
+      if (eventType === "recurring") {
+        const freq = document.getElementById("recurrenceFreq").value || "WEEKLY";
+        const rawCount = parseInt(document.getElementById("recurrenceCount").value, 10);
+        const count = rawCount > 1 ? rawCount : 5;
+        rrule = "RRULE:FREQ=" + freq + ";COUNT=" + count + "\r\n";
+      }
+
+      const alarmBlock = (!isNaN(reminderMinutes) && reminderMinutes > 0)
+        ? "BEGIN:VALARM\r\n" +
+          "ACTION:DISPLAY\r\n" +
+          "DESCRIPTION:Reminder\r\n" +
+          "TRIGGER:-PT" + reminderMinutes + "M\r\n" +
+          "END:VALARM\r\n"
+        : "";
+
+      const buildDateLines = (dStart, dEnd, tz, allDayFlag, tzOutlook) => {
+        if (allDayFlag) {
+          return (
+            "DTSTART;VALUE=DATE:" + toICSDate(dStart) + "\r\n" +
+            "DTEND;VALUE=DATE:" + toICSDate(dEnd) + "\r\n"
+          );
+        }
+        if (tzOutlook) {
+          return (
+            'DTSTART;TZID="' + tzOutlook + '":' + toICSDateTimeLocal(dStart) + "\r\n" +
+            'DTEND;TZID="' + tzOutlook + '":' + toICSDateTimeLocal(dEnd) + "\r\n"
+          );
+        }
+        return (
+          "DTSTART;TZID=" + tz + ":" + toICSDateTimeLocal(dStart) + "\r\n" +
+          "DTEND;TZID=" + tz + ":" + toICSDateTimeLocal(dEnd) + "\r\n"
+        );
+      };
+
+      /* Universal / Gmail */
+      const icsUniversal =
+        "BEGIN:VCALENDAR\r\n" +
+        "VERSION:2.0\r\n" +
+        "PRODID:-//Custom//ICS Generator//EN\r\n" +
+        "CALSCALE:GREGORIAN\r\n" +
+        "METHOD:PUBLISH\r\n" +
+        "BEGIN:VEVENT\r\n" +
+        buildDateLines(start, end, tzIana, allDay, null) +
+        "DTSTAMP:" + dtStamp + "\r\n" +
+        organizerLine +
+        "UID:" + uidBase + "@universal\r\n" +
+        rrule +
+        (attendees.length ? buildAttendees(false) + "\r\n" : "") +
+        "SUMMARY:" + escapeICSText(title) + "\r\n" +
+        (location ? "LOCATION:" + escapeICSText(location) + "\r\n" : "") +
+        (desc ? "DESCRIPTION:" + escapeICSText(desc) + "\r\n" : "") +
+        "STATUS:CONFIRMED\r\n" +
+        "TRANSP:" + transp + "\r\n" +
+        alarmBlock +
+        "END:VEVENT\r\nEND:VCALENDAR\r\n";
+
+      createDownloadLink(
+        document.getElementById("linkUniversal"),
+        icsUniversal,
+        "event-universal.ics"
+      );
+
+      /* Apple */
+      const icsApple =
+        "BEGIN:VCALENDAR\r\n" +
+        "VERSION:2.0\r\n" +
+        "PRODID:-//Custom//ICS Generator Apple//EN\r\n" +
+        "CALSCALE:GREGORIAN\r\n" +
+        "METHOD:PUBLISH\r\n" +
+        "BEGIN:VEVENT\r\n" +
+        buildDateLines(start, end, tzIana, allDay, null) +
+        "DTSTAMP:" + dtStamp + "\r\n" +
+        organizerLine +
+        "UID:" + uidBase + "@apple\r\n" +
+        rrule +
+        (attendees.length ? buildAttendees(true) + "\r\n" : "") +
+        "SUMMARY:" + escapeICSText(title) + "\r\n" +
+        (location ? "LOCATION:" + escapeICSText(location) + "\r\n" : "") +
+        (desc ? "DESCRIPTION:" + escapeICSText(desc) + "\r\n" : "") +
+        "STATUS:CONFIRMED\r\n" +
+        "TRANSP:" + transp + "\r\n" +
+        alarmBlock +
+        "END:VEVENT\r\nEND:VCALENDAR\r\n";
+
+      createDownloadLink(
+        document.getElementById("linkApple"),
+        icsApple,
+        "event-apple.ics"
+      );
+
+      /* Outlook Web / M365 */
+      const icsOutlookWeb =
+        "BEGIN:VCALENDAR\r\n" +
+        "VERSION:2.0\r\n" +
+        "PRODID:-//Custom//ICS Generator//EN\r\n" +
+        "CALSCALE:GREGORIAN\r\n" +
+        "METHOD:REQUEST\r\n" +
+        "BEGIN:VEVENT\r\n" +
+        buildDateLines(start, end, tzIana, allDay, null) +
+        "DTSTAMP:" + dtStamp + "\r\n" +
+        organizerLine +
+        "UID:" + uidBase + "@outlook-web\r\n" +
+        rrule +
+        (attendees.length ? buildAttendees(true) + "\r\n" : "") +
+        "SUMMARY:" + escapeICSText(title) + "\r\n" +
+        (location ? "LOCATION:" + escapeICSText(location) + "\r\n" : "") +
+        (desc ? "DESCRIPTION:" + escapeICSText(desc) + "\r\n" : "") +
+        "STATUS:CONFIRMED\r\n" +
+        "TRANSP:" + transp + "\r\n" +
+        "X-MICROSOFT-CDO-BUSYSTATUS:" + msBusy + "\r\n" +
+        alarmBlock +
+        "END:VEVENT\r\nEND:VCALENDAR\r\n";
+
+      createDownloadLink(
+        document.getElementById("linkOutlookWeb"),
+        icsOutlookWeb,
+        "event-outlook-web.ics"
+      );
+
+      /* Outlook Desktop */
+      const winTZ = mapToWindowsTimeZone(tzIana);
+      const icsOutlookDesktop =
+        "BEGIN:VCALENDAR\r\n" +
+        "PRODID:-//Microsoft Corporation//Outlook 16.0 MIMEDIR//EN\r\n" +
+        "VERSION:2.0\r\n" +
+        "METHOD:REQUEST\r\n" +
+        "BEGIN:VTIMEZONE\r\n" +
+        "TZID:" + winTZ + "\r\n" +
+        "BEGIN:STANDARD\r\n" +
+        "DTSTART:16011028T030000\r\n" +
+        "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=10\r\n" +
+        "TZOFFSETFROM:+0200\r\n" +
+        "TZOFFSETTO:+0100\r\n" +
+        "END:STANDARD\r\n" +
+        "BEGIN:DAYLIGHT\r\n" +
+        "DTSTART:16010325T020000\r\n" +
+        "RRULE:FREQ=YEARLY;BYDAY=-1SU;BYMONTH=3\r\n" +
+        "TZOFFSETFROM:+0100\r\n" +
+        "TZOFFSETTO:+0200\r\n" +
+        "END:DAYLIGHT\r\n" +
+        "END:VTIMEZONE\r\n" +
+        "BEGIN:VEVENT\r\n" +
+        buildDateLines(start, end, tzIana, allDay, winTZ) +
+        "DTSTAMP:" + dtStamp + "\r\n" +
+        organizerLine +
+        "UID:" + uidBase + "@outlook-desktop\r\n" +
+        rrule +
+        (attendees.length ? buildAttendees(true) + "\r\n" : "") +
+        "CLASS:PUBLIC\r\n" +
+        "SUMMARY:" + escapeICSText(title) + "\r\n" +
+        (location ? "LOCATION:" + escapeICSText(location) + "\r\n" : "") +
+        (desc ? "DESCRIPTION:" + escapeICSText(desc) + "\r\n" : "") +
+        "PRIORITY:5\r\n" +
+        "TRANSP:" + transp + "\r\n" +
+        "X-MICROSOFT-CDO-BUSYSTATUS:" + msBusy + "\r\n" +
+        "X-MICROSOFT-DISALLOW-COUNTER:FALSE\r\n" +
+        alarmBlock +
+        "END:VEVENT\r\nEND:VCALENDAR\r\n";
+
+      createDownloadLink(
+        document.getElementById("linkOutlookDesktop"),
+        icsOutlookDesktop,
+        "event-outlook-desktop.ics"
+      );
+
+      /* Direct links: note - free/busy not controllable here */
+      let gDates;
+      if (allDay) {
+        gDates = toICSDate(start) + "/" + toICSDate(end);
+      } else {
+        gDates = toICSDateTimeUTC(start) + "/" + toICSDateTimeUTC(end);
+      }
+
+      const googleUrl =
+        "https://calendar.google.com/calendar/render?action=TEMPLATE" +
+        "&text=" + encodeURIComponent(title) +
+        "&dates=" + gDates +
+        "&details=" + encodeURIComponent(desc || "") +
+        "&location=" + encodeURIComponent(location || "") +
+        "&ctz=" + encodeURIComponent(tzIana || "UTC");
+      document.getElementById("linkGoogleDirect").href = googleUrl;
+
+      const outlookUrl =
+        "https://outlook.office.com/calendar/0/deeplink/compose" +
+        "?path=/calendar/action/compose&rru=addevent" +
+        "&subject=" + encodeURIComponent(title) +
+        "&body=" + encodeURIComponent(desc || "") +
+        "&startdt=" + encodeURIComponent(start.toISOString()) +
+        "&enddt=" + encodeURIComponent(end.toISOString()) +
+        "&location=" + encodeURIComponent(location || "");
+      document.getElementById("linkOutlookDirect").href = outlookUrl;
+
+      /* Show outputs + embed */
+      updateMap(location);
+      document.getElementById("outputs").classList.remove("d-none");
+
+      const embed = buildEmbedSnippet({
+        title,
+        location,
+        universalICS: icsUniversal,
+        appleICS: icsApple,
+        outlookWebICS: icsOutlookWeb,
+        outlookDesktopICS: icsOutlookDesktop,
+        googleUrl,
+        outlookUrl
+      });
+      document.getElementById("embedCode").value = embed;
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      const form = document.getElementById("eventForm");
+      const allday = document.getElementById("allday");
+
+      form.addEventListener("submit", generateICSFromForm);
+      allday.addEventListener("change", handleAllDayToggle);
+
+      document
+        .querySelectorAll('input[name="eventType"]')
+        .forEach(el => el.addEventListener("change", updateRecurrenceVisibility));
+
+      document.getElementById("copyEmbed").addEventListener("click", () => {
+        const code = document.getElementById("embedCode").value;
+        if (!code) return;
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(code);
+        } else {
+          alert("Please copy the embed code manually.");
+        }
+      });
+
+      updateRecurrenceVisibility();
+    });
+  </script>
+</body>
+</html>
