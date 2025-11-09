@@ -1,3 +1,12 @@
+No subscriptions. No APIs. No “Pro Tier for RRULE support.”  
+Just good old-fashioned **HTML + JavaScript + Bootstrap**, a sprinkle of chaos,  
+and a lot of `"BEGIN:VEVENT"`s.
+
+## ✨ Features
+- Create events that *mostly* behave across Gmail, Outlook, and Apple Calendar  
+- Toggle between “Busy” and “Available” (because sometimes you’re pretending to be working)
+- Add Google Maps previews, direct links, and even recurring events  
+- Export `.ics` files without begging a SaaS for permission  
 ## How to Use
 1. Clone or fork this chaos.
 2. Open `index.html` in your browser.
